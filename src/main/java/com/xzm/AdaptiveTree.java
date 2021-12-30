@@ -4,14 +4,26 @@ import java.util.NoSuchElementException;
 
 public class AdaptiveTree {
 
-	/* Adaptive Tree data members */
+	/**
+	 * Adaptive Tree data members
+	 */
 	protected Node tree[] = new Node[2*ALPH_SIZE];
+
 	protected int root;
 	
 	/* Adaptive Tree constants */
-	static final int ALPH_SIZE = 127;	// size of the alphabet
-	static final char none = (char) 256;	// not a character
-	static final char NYT = (char) 257;	// Not Yet transmitted code (NEW: 0)
+	/**
+	 * size of the alphabet
+	 */
+	static final int ALPH_SIZE = 127;
+	/**
+	 * not a character
+	 */
+	static final char none = (char) 256;
+	/**
+	 * Not Yet transmitted code (NEW: 0)
+	 */
+	static final char NYT = (char) 257;
 	
 	/**
 	 * initiate an Adaptive Tree
@@ -158,8 +170,8 @@ public class AdaptiveTree {
 		oldNYTindex = findChar(NYT);
 		oldNYT = tree[oldNYTindex];
 		
-		// create new nodes
-		oldNYT.letter = none;	// not leaf
+		// create new nodes,not leaf
+		oldNYT.letter = none;
 		
 		oldNYT.right = oldNYTindex - 1;
 		tree[oldNYT.right].letter = newchar;

@@ -1,11 +1,11 @@
-package com.xzm;
+import com.xzm.AdaptiveHuff;
 
 /**
  * @author xiangzhimin
  * @Description
- * @create 2021-12-30 9:35
+ * @create 2021-12-30 10:16
  */
-public class main {
+public class Main {
 
     public static void main(String[] args) {
 
@@ -19,7 +19,7 @@ public class main {
                 charList+=c;
             }
             AdaptiveHuff huff = new AdaptiveHuff();
-            String run = huff.run(charList);
+            String run = huff.encode(charList);
             String decode = huff.decode(run);
             if(charList.equals(decode)){
                 sum++;

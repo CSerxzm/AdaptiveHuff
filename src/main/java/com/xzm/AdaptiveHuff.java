@@ -1,22 +1,29 @@
 package com.xzm;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class AdaptiveHuff extends AdaptiveTree {
-	
+
+    Logger logger = LoggerFactory.getLogger(AdaptiveHuff.class);
+
 	private String symbols = "";
 	private String charSent = "";
-	private String codeSent = "";	//table 7-4
+	private String codeSent = "";
 	private Map<Character, String> initCode = new HashMap<Character, String>();
 	
 	public AdaptiveHuff() {
 		initCode();
 	}
-	
-	/**
-	 * Initialize the data string
-	 */
-	public void initCode() {
+
+
+    /**
+     * Initialize the data string
+     */
+	private void initCode() {
 		initAdaptiveTree(51);
 		symbols = NYT + "ABCD";
 		initCode.put(NYT, "0");
@@ -26,17 +33,12 @@ public class AdaptiveHuff extends AdaptiveTree {
 		initCode.put('D', "00100");
 	}
 
-	public Map<Character, String> getMap(){
-		return initCode;
-	}
-
-	
 	/**
 	 * Update the tree
 	 * 
 	 * @param newchar
 	 */
-	public void updateTree(char newchar) {
+	private void updateTree(char newchar) {
 		int current;
 		int max;
 		
@@ -44,30 +46,36 @@ public class AdaptiveHuff extends AdaptiveTree {
 			// first appearance for symbol
 			current = findChar(newchar);
 			// Go to symbol external node
-			max = highestInBlock(tree[current].count);	// com.xzm.Node number max in block?
+			max = highestInBlock(tree[current].count);
 			if (current != max && tree[current].parent != max) {
-				printMessage("    Swapping nodes " +current+ " and " +max);
-				swap(current, max);	// Switch node with highest node in block
+				printLog("    Swapping nodes " +current+ " and " +max);
+                // Switch node with highest node in block
+				swap(current, max);
 				current = max;
 			}
-			printMessage("    Increasing count for '" +newchar+ "'");
-			tree[current].count++;	// Increment node weight
-		} catch (NoSuchElementException e) {	// Yes
-			printMessage("    Spawning new node for '" +newchar+ "'");
-			current = spawn(newchar);	// NYT gives birth to new NYT and external node
-			current = tree[current].parent;	// Go to old NYT node
-			tree[current].count++;	// Increment count of old NYT node
+			printLog("    Increasing count for '" +newchar+ "'");
+            // Increment node weight
+			tree[current].count++;
+		} catch (NoSuchElementException e) {
+			printLog("    Spawning new node for '" +newchar+ "'");
+			current = spawn(newchar);
+			current = tree[current].parent;
+			tree[current].count++;
 		}
 		
-		while (current != root) {	// Is this the root node?
-			current = tree[current].parent;	// Go to parent node
-			max = highestInBlock(tree[current].count);	// com.xzm.Node number max in block?
+		while (current != root) {
+            // Is this the root node?
+            // Go to parent node
+			current = tree[current].parent;
+			max = highestInBlock(tree[current].count);
 			if (current != max && tree[current].parent != max) {
-				printMessage("    Swapping nodes " +current+ " and " +max);
-				swap(current, max);	// Switch node with highest node in block
+				printLog("    Swapping nodes " +current+ " and " +max);
+                // Switch node with highest node in block
+				swap(current, max);
 				current = max;
 			}
-			tree[current].count++;	// Increment node weight
+            // Increment node weight
+			tree[current].count++;
 		}
 	}
 	
@@ -77,43 +85,45 @@ public class AdaptiveHuff extends AdaptiveTree {
 	 * @param hold		current char
 	 * @return code		code of current char
 	 */
-	public String encode(char hold) {
+	private String encodeCharacter(char hold) {
 		String code;
 		try {
 			code = hold + "(" + char2code(hold) + ") ";
-			printMessage("Character '" + hold + "' FOUND:");
-			printMessage("    Sending code for '" +hold+ "'");
+			printLog("Character '" + hold + "' FOUND:");
+			printLog("    Sending code for '" +hold+ "'");
 		} catch (NoSuchElementException d) {
-			printMessage("Character '" + hold + "' not found:");
+			printLog("Character '" + hold + "' not found:");
 			code = char2code(NYT);
 			if (code.equals("")) {
 				code = initCode.get(NYT);
 			}
 			code = "NEW(" + code + ") " + hold + "(" + initCode.get(hold) + ") ";
-			printMessage ("   Sending NYT and character '" + hold + "'");
+			printLog ("   Sending NYT and character '" + hold + "'");
 		}
 		return code;
 	}
 	
-	public void printMessage(String mess) {
-		System.out.println(mess);
+	private void printLog(String mess) {
+		logger.info(mess);
 	}
 	
-	public String run(String charList) {
+	public String encode(String charList) {
 		charSent = charList;
 		int i, j;
 		char hold, symbol;
 		for (i=0; i<charSent.length(); i++) {
-			hold = charSent.charAt(i);	// current char
+			hold = charSent.charAt(i);
+
+			//encode
+			codeSent += encodeCharacter(hold);
+			printLog("*Sequence of symbols and codes sent to the decoder:");
+			printLog("   " + codeSent);
 			
-			codeSent += encode(hold);	// 1.encode
-			printMessage("*Sequence of symbols and codes sent to the decoder:");
-			printMessage("   " + codeSent);
+			printLog("Updating the tree:");
+			//update tree
+			updateTree(hold);
 			
-			printMessage("Updating the tree:");
-			updateTree(hold);	// 2.update
-			
-			printMessage("*Print the code of each symbol:");
+			printLog("*Print the code of each symbol:");
 			StringBuilder sb = new StringBuilder();
 			for (j=0; j<symbols.length(); j++) {
 				symbol = symbols.charAt(j);
@@ -129,11 +139,10 @@ public class AdaptiveHuff extends AdaptiveTree {
 				}
 				sb.append(") ");
 			}
-			printMessage("   " + sb.toString());
-			printMessage("");
+			printLog("   " + sb.toString());
+			printLog("");
 		}
-		String s = codeSent.replaceAll("[^0-9.]", "");
-		return s;
+		return codeSent.replaceAll("[^0-9.]", "");
 	}
 
 	/**
@@ -143,18 +152,19 @@ public class AdaptiveHuff extends AdaptiveTree {
 	 */
 	public String decode(String input){
 		initCode();
-		Map<Character, String> characterMap = new HashMap<>();
+		Map<Character, String> characterMap = new HashMap<Character, String>();
 		String res = new String();
 		Character symbol, key;
-		String code;
+		String code,s,value;
 		Boolean isFirst = false;
 		for( int index= 0 ;index<input.length();){
 			String temp = input.substring(index);
 			key = null;
 			code = null;
 			if(!isFirst){
+			    // is not first appear
 				for (Map.Entry<Character, String> item : characterMap.entrySet()) {
-					String value = item.getValue();
+					value = item.getValue();
 					if(temp.startsWith(value)){
 						key = item.getKey();
 						code = value;
@@ -165,11 +175,10 @@ public class AdaptiveHuff extends AdaptiveTree {
 			if(key==null){
 				for (int j=0; j<symbols.length(); j++) {
 					symbol = symbols.charAt(j);
-					//已经找过NYT，直接跳过
 					if(isFirst && symbol==NYT){
+					    // already has NYT,skip
 						continue;
 					}
-					String s;
 					try{
 						s = char2code(symbol);
 						if (s.equals("")) {
@@ -188,12 +197,11 @@ public class AdaptiveHuff extends AdaptiveTree {
 			if(key!=NYT){
 				res += key;
 				updateTree(key);
+				//update
 				characterMap.put(key,null);
-				//更新map
 				for (Map.Entry<Character, String> item : characterMap.entrySet()) {
 					Character item_key = item.getKey();
-					String value = char2code(item_key);
-					characterMap.put(item_key,value);
+					characterMap.put(item_key,char2code(item_key));
 				}
 				isFirst = false;
 			}else{
