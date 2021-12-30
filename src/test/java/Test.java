@@ -5,7 +5,7 @@ import com.xzm.AdaptiveHuff;
  * @Description
  * @create 2021-12-30 10:16
  */
-public class Main {
+public class Test {
 
     public static void main(String[] args) {
 
