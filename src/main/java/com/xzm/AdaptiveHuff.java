@@ -24,13 +24,36 @@ public class AdaptiveHuff extends AdaptiveTree {
      * Initialize the data string
      */
 	private void initCode() {
-		initAdaptiveTree(51);
-		symbols = NYT + "ABCD";
+		initAdaptiveTree(100);
+		symbols = NYT + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		initCode.put(NYT, "0");
 		initCode.put('A', "00001");
 		initCode.put('B', "00010");
 		initCode.put('C', "00011");
 		initCode.put('D', "00100");
+		initCode.put('E', "00101");
+		initCode.put('F', "00110");
+		initCode.put('G', "00111");
+		initCode.put('H', "01000");
+		initCode.put('I', "01001");
+		initCode.put('J', "01010");
+		initCode.put('K', "01011");
+		initCode.put('L', "01100");
+		initCode.put('M', "01101");
+		initCode.put('N', "01110");
+		initCode.put('O', "01111");
+		initCode.put('P', "10000");
+		initCode.put('Q', "10001");
+		initCode.put('R', "10010");
+		initCode.put('S', "10011");
+		initCode.put('T', "10100");
+		initCode.put('U', "10101");
+		initCode.put('V', "10110");
+		initCode.put('W', "10111");
+		initCode.put('X', "11000");
+		initCode.put('Y', "11001");
+		initCode.put('Z', "11010");
+		
 	}
 
 	/**

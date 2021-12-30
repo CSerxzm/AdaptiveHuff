@@ -9,13 +9,15 @@ public class Test {
 
     public static void main(String[] args) {
 
-        char [] arr = {'A','B','C','D'};
+        String str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        char[] arr = str.toCharArray();
+        int arr_len = arr.length;
         int sum = 0;
         for(int i=0;i<10;i++){
             int length = (int) (Math.random() * 100);
             String charList = new String();
             for(int j=0;j<length;j++){
-                char c = arr[(int)(Math.random()*4)];
+                char c = arr[(int)(Math.random()*arr_len)];
                 charList+=c;
             }
             AdaptiveHuff huff = new AdaptiveHuff();
